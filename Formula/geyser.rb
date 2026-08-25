@@ -21,12 +21,8 @@ class Geyser < Formula
   end
 
   def install
-    if OS.mac? && !Hardware::CPU.arm?
-      odie "Geyser Open supports Apple-Silicon macOS only"
-    end
-    if OS.linux? && !Hardware::CPU.intel?
-      odie "Geyser Open supports AMD64 Linux only"
-    end
+    odie "Geyser Open supports Apple-Silicon macOS only" if OS.mac? && !Hardware::CPU.arm?
+    odie "Geyser Open supports AMD64 Linux only" if OS.linux? && !Hardware::CPU.intel?
     resource("geyser-cli").stage do
       bin.install "geyser"
     end
