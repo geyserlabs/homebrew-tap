@@ -1,0 +1,73 @@
+name: Update Geyser formula
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact released version without the v prefix
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  attestations: read
+
+jobs:
+  update:
+    runs-on: macos-14
+    environment: homebrew-release
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          ref: main
+      - name: Download and verify canonical release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          mkdir release
+          gh release download "v$VERSION" --repo geyserlabs/geyser-open --dir release \
+            --pattern "geyser-open-$VERSION-darwin-arm64.tar.gz" \
+            --pattern "geyser-open-$VERSION-linux-amd64.tar.gz" \
+            --pattern SHA256SUMS \
+            --pattern release-manifest.json
+          awk -v mac="geyser-open-$VERSION-darwin-arm64.tar.gz" \
+            -v linux="geyser-open-$VERSION-linux-amd64.tar.gz" \
+            '$2 == mac || $2 == linux {print}' release/SHA256SUMS > release/SELECTED_SHA256SUMS
+          test "$(wc -l < release/SELECTED_SHA256SUMS | tr -d ' ')" = 2
+          (cd release && shasum -a 256 -c SELECTED_SHA256SUMS)
+          gh attestation verify "release/geyser-open-$VERSION-darwin-arm64.tar.gz" \
+            --repo geyserlabs/geyser-open
+          gh attestation verify "release/geyser-open-$VERSION-linux-amd64.tar.gz" \
+            --repo geyserlabs/geyser-open
+      - name: Generate exact formula
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          darwin_sha="$(awk -v n="geyser-open-$VERSION-darwin-arm64.tar.gz" '$2 == n {print $1}' release/SHA256SUMS)"
+          linux_sha="$(awk -v n="geyser-open-$VERSION-linux-amd64.tar.gz" '$2 == n {print $1}' release/SHA256SUMS)"
+          source_commit="$(python3 -c 'import json; print(json.load(open("release/release-manifest.json"))["source_commit"])')"
+          run_url="$(python3 -c 'import json; print(json.load(open("release/release-manifest.json"))["workflow_run"])')"
+          python3 scripts/generate_formula.py \
+            --version "$VERSION" \
+            --darwin-sha256 "$darwin_sha" \
+            --linux-sha256 "$linux_sha" \
+            --source-commit "$source_commit" \
+            --run-url "$run_url"
+          make check
+      - name: Open reviewed formula pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          branch="codex/geyser-$VERSION"
+          git config user.name "geyserlabs-release[bot]"
+          git config user.email "security@geyserlabs.ai"
+          git switch -c "$branch"
+          git add Formula/geyser.rb
+          git commit -m "geyser $VERSION"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "geyser $VERSION" \
+            --body "Pins the signed Geyser Open v$VERSION release assets and provenance."
