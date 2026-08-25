@@ -2,21 +2,21 @@ class Geyser < Formula
   desc "Framework-neutral CLI for governed durable Geyser agents"
   homepage "https://geyserlabs.ai/developers"
 
-  # Source: b105031a2de27633a183d82729b375168b138fcf
-  # Provenance: https://github.com/geyserlabs/geyser-open/actions/runs/32854732268
-  url "https://github.com/geyserlabs/geyser-open/releases/download/v0.1.0b4/geyser-contracts-0.1.0b4.tar.gz"
-  sha256 "dabfea6ee6646cdb3b824d1def38f7dbbd62e16b953504b07b8c67388969021d"
+  # Source: e567d9d6051b73d0fd4531a75245b65730c0790a
+  # Provenance: https://github.com/geyserlabs/geyser-open/actions/runs/32866021028
+  url "https://github.com/geyserlabs/geyser-open/releases/download/v0.1.0/geyser-contracts-0.1.0.tar.gz"
+  sha256 "5fe0afe62a3ca1bb993e7fd7dbfa51f44908dd57a45e6ed682dc4d4d16dd6ed0"
   license "MIT"
 
   resource "geyser-cli" do
     on_macos do
-      url "https://github.com/geyserlabs/geyser-open/releases/download/v0.1.0b4/geyser-open-0.1.0b4-darwin-arm64.tar.gz"
-      sha256 "271cf51f14fa872e9cbe51274082046b946b76eebd6a55f3c5cc4406ee8a634a"
+      url "https://github.com/geyserlabs/geyser-open/releases/download/v0.1.0/geyser-open-0.1.0-darwin-arm64.tar.gz"
+      sha256 "c239a4704dca2e329875c2e0d0761ef1c5057475f7e97e3e22e3abea2319a1f4"
     end
 
     on_linux do
-      url "https://github.com/geyserlabs/geyser-open/releases/download/v0.1.0b4/geyser-open-0.1.0b4-linux-amd64.tar.gz"
-      sha256 "ed5e43d98281ae903206b49b92088fd88c43f3e1f471605c98615de2ee16eb67"
+      url "https://github.com/geyserlabs/geyser-open/releases/download/v0.1.0/geyser-open-0.1.0-linux-amd64.tar.gz"
+      sha256 "d3b7b85ee1af33087fca7df6566a0480dec0f0f10665e3c587fe8b8620cd9930"
     end
   end
 
@@ -29,6 +29,6 @@ class Geyser < Formula
   end
 
   test do
-    assert_match '"geyser_open":"0.1.0b4"', shell_output("#{bin}/geyser --json version")
+    assert_match '"geyser_open":"0.1.0"', shell_output("#{bin}/geyser --json version")
   end
 end
