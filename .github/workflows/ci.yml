@@ -23,3 +23,20 @@ jobs:
           brew test geyserlabs/tap/geyser
           brew audit --strict --online geyserlabs/tap/geyser
           brew uninstall geyser
+
+  pr-gate:
+    name: pr-gate
+    if: always()
+    needs: check
+    runs-on: macos-14
+    timeout-minutes: 3
+    steps:
+      - name: Require the complete tap gate
+        env:
+          CHECK_RESULT: ${{ needs.check.result }}
+        run: |
+          set -euo pipefail
+          [[ "$CHECK_RESULT" == "success" ]] || {
+            echo "Homebrew tap gate did not pass: $CHECK_RESULT" >&2
+            exit 1
+          }
