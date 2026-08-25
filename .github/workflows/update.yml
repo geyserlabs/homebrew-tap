@@ -30,16 +30,21 @@ jobs:
           gh release download "v$VERSION" --repo geyserlabs/geyser-open --dir release \
             --pattern "geyser-open-$VERSION-darwin-arm64.tar.gz" \
             --pattern "geyser-open-$VERSION-linux-amd64.tar.gz" \
+            --pattern "geyser-contracts-$VERSION.tar.gz" \
             --pattern SHA256SUMS \
             --pattern release-manifest.json
           awk -v mac="geyser-open-$VERSION-darwin-arm64.tar.gz" \
             -v linux="geyser-open-$VERSION-linux-amd64.tar.gz" \
-            '$2 == mac || $2 == linux {print}' release/SHA256SUMS > release/SELECTED_SHA256SUMS
-          test "$(wc -l < release/SELECTED_SHA256SUMS | tr -d ' ')" = 2
+            -v contracts="geyser-contracts-$VERSION.tar.gz" \
+            '$2 == mac || $2 == linux || $2 == contracts {print}' \
+            release/SHA256SUMS > release/SELECTED_SHA256SUMS
+          test "$(wc -l < release/SELECTED_SHA256SUMS | tr -d ' ')" = 3
           (cd release && shasum -a 256 -c SELECTED_SHA256SUMS)
           gh attestation verify "release/geyser-open-$VERSION-darwin-arm64.tar.gz" \
             --repo geyserlabs/geyser-open
           gh attestation verify "release/geyser-open-$VERSION-linux-amd64.tar.gz" \
+            --repo geyserlabs/geyser-open
+          gh attestation verify "release/geyser-contracts-$VERSION.tar.gz" \
             --repo geyserlabs/geyser-open
       - name: Generate exact formula
         env:
@@ -47,10 +52,12 @@ jobs:
         run: |
           darwin_sha="$(awk -v n="geyser-open-$VERSION-darwin-arm64.tar.gz" '$2 == n {print $1}' release/SHA256SUMS)"
           linux_sha="$(awk -v n="geyser-open-$VERSION-linux-amd64.tar.gz" '$2 == n {print $1}' release/SHA256SUMS)"
+          contracts_sha="$(awk -v n="geyser-contracts-$VERSION.tar.gz" '$2 == n {print $1}' release/SHA256SUMS)"
           source_commit="$(python3 -c 'import json; print(json.load(open("release/release-manifest.json"))["source_commit"])')"
           run_url="$(python3 -c 'import json; print(json.load(open("release/release-manifest.json"))["workflow_run"])')"
           python3 scripts/generate_formula.py \
             --version "$VERSION" \
+            --contracts-sha256 "$contracts_sha" \
             --darwin-sha256 "$darwin_sha" \
             --linux-sha256 "$linux_sha" \
             --source-commit "$source_commit" \

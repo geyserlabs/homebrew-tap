@@ -14,10 +14,17 @@ DIGEST = re.compile(r"^[0-9a-f]{64}$")
 COMMIT = re.compile(r"^[0-9a-f]{40}$")
 
 
-def render(version: str, darwin: str, linux: str, source_commit: str, run_url: str) -> str:
+def render(
+    version: str,
+    contracts: str,
+    darwin: str,
+    linux: str,
+    source_commit: str,
+    run_url: str,
+) -> str:
     if not VERSION.fullmatch(version):
         raise ValueError("version must be a release version such as 0.1.0b1")
-    if not DIGEST.fullmatch(darwin) or not DIGEST.fullmatch(linux):
+    if not all(DIGEST.fullmatch(value) for value in (contracts, darwin, linux)):
         raise ValueError("artifact hashes must be lowercase SHA-256 digests")
     if not COMMIT.fullmatch(source_commit):
         raise ValueError("source commit must be a full Git SHA")
@@ -27,33 +34,35 @@ def render(version: str, darwin: str, linux: str, source_commit: str, run_url: s
     return f'''class Geyser < Formula
   desc "Framework-neutral CLI for governed durable Geyser agents"
   homepage "https://geyserlabs.ai/developers"
-  version "{version}"
-  license "MIT"
 
   # Source: {source_commit}
   # Provenance: {run_url}
-  on_macos do
-    url "{base}/geyser-open-{version}-darwin-arm64.tar.gz"
-    sha256 "{darwin}"
-  end
+  url "{base}/geyser-contracts-{version}.tar.gz"
+  sha256 "{contracts}"
+  license "MIT"
 
-  on_linux do
-    url "{base}/geyser-open-{version}-linux-amd64.tar.gz"
-    sha256 "{linux}"
+  resource "geyser-cli" do
+    on_macos do
+      url "{base}/geyser-open-{version}-darwin-arm64.tar.gz"
+      sha256 "{darwin}"
+    end
+
+    on_linux do
+      url "{base}/geyser-open-{version}-linux-amd64.tar.gz"
+      sha256 "{linux}"
+    end
   end
 
   def install
-    if OS.mac? && !Hardware::CPU.arm?
-      odie "Geyser Open supports Apple-Silicon macOS only"
+    odie "Geyser Open supports Apple-Silicon macOS only" if OS.mac? && !Hardware::CPU.arm?
+    odie "Geyser Open supports AMD64 Linux only" if OS.linux? && !Hardware::CPU.intel?
+    resource("geyser-cli").stage do
+      bin.install "geyser"
     end
-    if OS.linux? && !Hardware::CPU.intel?
-      odie "Geyser Open supports AMD64 Linux only"
-    end
-    bin.install "geyser"
   end
 
   test do
-    assert_match %Q("geyser_open":"{version}"), shell_output("#{{bin}}/geyser --json version")
+    assert_match '"geyser_open":"{version}"', shell_output("#{{bin}}/geyser --json version")
   end
 end
 '''
@@ -67,6 +76,7 @@ def validate_existing() -> None:
         raise ValueError("formula must use canonical GitHub Release assets, not a website mirror")
     for sentinel in (
         "github.com/geyserlabs/geyser-open/releases/download/",
+        'resource "geyser-cli"',
         'sha256 "',
         'bin.install "geyser"',
         "--json version",
@@ -80,6 +90,7 @@ def validate_existing() -> None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--version")
+    parser.add_argument("--contracts-sha256")
     parser.add_argument("--darwin-sha256")
     parser.add_argument("--linux-sha256")
     parser.add_argument("--source-commit")
@@ -94,6 +105,7 @@ def main() -> int:
             return 0
         values = (
             args.version,
+            args.contracts_sha256,
             args.darwin_sha256,
             args.linux_sha256,
             args.source_commit,

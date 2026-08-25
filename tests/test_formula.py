@@ -15,6 +15,7 @@ class FormulaTests(unittest.TestCase):
     def test_render_pins_platform_assets_and_provenance(self) -> None:
         formula = MODULE.render(
             "0.1.0b1",
+            "d" * 64,
             "a" * 64,
             "b" * 64,
             "c" * 40,
@@ -22,8 +23,12 @@ class FormulaTests(unittest.TestCase):
         )
         self.assertIn("geyser-open-0.1.0b1-darwin-arm64.tar.gz", formula)
         self.assertIn("geyser-open-0.1.0b1-linux-amd64.tar.gz", formula)
+        self.assertIn("geyser-contracts-0.1.0b1.tar.gz", formula)
+        self.assertIn('resource "geyser-cli"', formula)
+        self.assertIn('sha256 "' + "d" * 64 + '"', formula)
         self.assertIn('sha256 "' + "a" * 64 + '"', formula)
         self.assertIn('sha256 "' + "b" * 64 + '"', formula)
+        self.assertNotIn('version "0.1.0b1"', formula)
         self.assertNotIn("www.geyserlabs.ai/download", formula)
         self.assertIn("# Source: " + "c" * 40, formula)
 
@@ -31,6 +36,7 @@ class FormulaTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             MODULE.render(
                 "latest",
+                "d" * 64,
                 "a" * 64,
                 "b" * 64,
                 "c" * 40,
