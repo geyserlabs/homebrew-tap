@@ -28,6 +28,7 @@ class FormulaTests(unittest.TestCase):
         self.assertIn('sha256 "' + "d" * 64 + '"', formula)
         self.assertIn('sha256 "' + "a" * 64 + '"', formula)
         self.assertIn('sha256 "' + "b" * 64 + '"', formula)
+        self.assertNotIn('version "0.1.0b1"', formula)
         self.assertNotIn("www.geyserlabs.ai/download", formula)
         self.assertIn("# Source: " + "c" * 40, formula)
 

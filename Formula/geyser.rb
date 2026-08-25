@@ -1,13 +1,12 @@
 class Geyser < Formula
   desc "Framework-neutral CLI for governed durable Geyser agents"
   homepage "https://geyserlabs.ai/developers"
-  version "0.1.0b4"
-  license "MIT"
 
   # Source: b105031a2de27633a183d82729b375168b138fcf
   # Provenance: https://github.com/geyserlabs/geyser-open/actions/runs/32854732268
   url "https://github.com/geyserlabs/geyser-open/releases/download/v0.1.0b4/geyser-contracts-0.1.0b4.tar.gz"
   sha256 "dabfea6ee6646cdb3b824d1def38f7dbbd62e16b953504b07b8c67388969021d"
+  license "MIT"
 
   resource "geyser-cli" do
     on_macos do

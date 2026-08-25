@@ -34,13 +34,12 @@ def render(
     return f'''class Geyser < Formula
   desc "Framework-neutral CLI for governed durable Geyser agents"
   homepage "https://geyserlabs.ai/developers"
-  version "{version}"
-  license "MIT"
 
   # Source: {source_commit}
   # Provenance: {run_url}
   url "{base}/geyser-contracts-{version}.tar.gz"
   sha256 "{contracts}"
+  license "MIT"
 
   resource "geyser-cli" do
     on_macos do
