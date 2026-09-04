@@ -1,6 +1,6 @@
 PYTHON ?= python3
 
-.PHONY: check formula-check
+.PHONY: check full-check formula-check
 
 check:
 	$(PYTHON) -m unittest discover -s tests -v
@@ -11,3 +11,5 @@ formula-check: check
 	test -f Formula/geyser.rb
 	brew audit --strict --online geyserlabs/tap/geyser
 	brew test geyserlabs/tap/geyser
+
+full-check: formula-check

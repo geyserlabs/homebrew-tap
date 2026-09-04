@@ -9,11 +9,9 @@ brew install geyser
 geyser --json version
 ```
 
-Formula changes are generated from immutable, signed Geyser Open GitHub
-Release assets. Each URL and SHA-256 digest is pinned; the update workflow
-verifies GitHub attestation and the retained release manifest before opening a
-reviewed pull request. Packages are not mirrored through the marketing site.
+Formula changes are generated from immutable Geyser Open GitHub Release assets.
+Each platform URL and SHA-256 digest is pinned. The update workflow checks those
+two downloads, runs `make check`, and opens a pull request. No attestation,
+release manifest, provenance record, or separate evidence package is required.
 
-Only Apple-Silicon macOS and AMD64 Linux are qualified in the Developer
-Preview. See the [Geyser Open release policy](https://github.com/geyserlabs/geyser-open/blob/main/docs/releases.md)
-for verification, rollback, and compromise response.
+The distributed targets are Apple-Silicon macOS and AMD64 Linux.
