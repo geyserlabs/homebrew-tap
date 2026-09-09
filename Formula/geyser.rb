@@ -1,17 +1,16 @@
 class Geyser < Formula
   desc "Framework-neutral CLI for governed durable Geyser agents"
   homepage "https://geyserlabs.ai/developers"
-
   license "MIT"
 
   on_macos do
-    url "https://github.com/geyserlabs/geyser-open/releases/download/v0.1.0/geyser-open-0.1.0-darwin-arm64.tar.gz"
-    sha256 "c239a4704dca2e329875c2e0d0761ef1c5057475f7e97e3e22e3abea2319a1f4"
+    url "https://github.com/geyserlabs/geyser-open/releases/download/v0.2.0/geyser-open-0.2.0-darwin-arm64.tar.gz"
+    sha256 "859e3a41a88234de55b7cd9ca9cb375f2d3a6c69586f483bb1480d236c68cfb1"
   end
 
   on_linux do
-    url "https://github.com/geyserlabs/geyser-open/releases/download/v0.1.0/geyser-open-0.1.0-linux-amd64.tar.gz"
-    sha256 "d3b7b85ee1af33087fca7df6566a0480dec0f0f10665e3c587fe8b8620cd9930"
+    url "https://github.com/geyserlabs/geyser-open/releases/download/v0.2.0/geyser-open-0.2.0-linux-amd64.tar.gz"
+    sha256 "5596e58a993233bf203ddfccbbc8e3f31722a1b6dd29ee4f734982338782f398"
   end
 
   def install
@@ -21,6 +20,6 @@ class Geyser < Formula
   end
 
   test do
-    assert_match '"geyser_open":"0.1.0"', shell_output("#{bin}/geyser --json version")
+    assert_match '"geyser_open":"0.2.0"', shell_output("#{bin}/geyser --json version")
   end
 end
