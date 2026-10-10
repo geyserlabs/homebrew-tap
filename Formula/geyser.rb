@@ -4,13 +4,13 @@ class Geyser < Formula
   license "MIT"
 
   on_macos do
-    url "https://github.com/geyserlabs/geyser-open/releases/download/v0.2.0/geyser-open-0.2.0-darwin-arm64.tar.gz"
-    sha256 "859e3a41a88234de55b7cd9ca9cb375f2d3a6c69586f483bb1480d236c68cfb1"
+    url "https://github.com/geyserlabs/geyser-open/releases/download/v0.3.1/geyser-open-0.3.1-darwin-arm64.tar.gz"
+    sha256 "ffda5cd3320d9c67ccceea1daf27f15c4f501a67c44bf51eb68c5492b70995f4"
   end
 
   on_linux do
-    url "https://github.com/geyserlabs/geyser-open/releases/download/v0.2.0/geyser-open-0.2.0-linux-amd64.tar.gz"
-    sha256 "5596e58a993233bf203ddfccbbc8e3f31722a1b6dd29ee4f734982338782f398"
+    url "https://github.com/geyserlabs/geyser-open/releases/download/v0.3.1/geyser-open-0.3.1-linux-amd64.tar.gz"
+    sha256 "788fbb2a5d96ace80c0f68b986a1013b39c791aa5ce69b19c970769cc54abe88"
   end
 
   def install
@@ -20,6 +20,6 @@ class Geyser < Formula
   end
 
   test do
-    assert_match '"geyser_open":"0.2.0"', shell_output("#{bin}/geyser --json version")
+    assert_match '"geyser_open":"0.3.1"', shell_output("#{bin}/geyser --json version")
   end
 end
